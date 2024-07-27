@@ -1,7 +1,6 @@
 import React from "react";
 
 export const SmallCard = ({
-  key,
   title,
   description,
   date,
@@ -10,7 +9,6 @@ export const SmallCard = ({
   price,
   duration,
 }) => {
-  console.log(key);
   const formatDateRange = (startTimestamp, durationDays) => {
     const startDate = new Date(startTimestamp * 1000);
     const endDate = new Date(startDate);
@@ -28,10 +26,7 @@ export const SmallCard = ({
   };
 
   return (
-    <div
-      key={key}
-      className="bg-beige rounded-md w-[21.43rem] sm:w-full p-4 text-sm h-72"
-    >
+    <div className="bg-beige rounded-md w-[21.43rem] sm:min-w-[29rem]  p-4 text-sm h-72">
       <div className=" h-32 w-full sm:w-40">
         <img
           src={image}

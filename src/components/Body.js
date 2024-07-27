@@ -41,14 +41,52 @@ export const Body = () => {
 
   const handleChangeDate = (event) => {
     setSelectedDate(event.target.value);
+    if (selectedType !== "Filter by Type") {
+      filterItems(event.target.value, selectedType);
+    } else {
+      filterItems(event.target.value, false);
+    }
+    // console.log(selectedType);
+    setCurrentPage(1);
+  };
+
+  const filterByDateRange = (items, yearRange) => {
+    let startYear, endYear;
+    if (yearRange === "2023-2024") {
+      startYear = 2023;
+      endYear = 2023;
+    } else if (yearRange === "2024-2025") {
+      startYear = 2024;
+      endYear = 2024;
+    }
+    return items.filter((item) => {
+      const itemDate = new Date(item.date * 1000);
+      const itemYear = itemDate.getFullYear();
+      return itemYear >= startYear && itemYear <= endYear;
+    });
+  };
+  const filterItems = (dateRange, type) => {
+    let filteredItems = originalItems;
+
+    if (dateRange) {
+      filteredItems = filterByDateRange(filteredItems, dateRange);
+    }
+
+    if (type) {
+      filteredItems = filteredItems.filter((item) => item.tag.includes(type));
+    }
+    console.log("Filtered items:", filteredItems); // Debug filtered items
+
+    setItems(filteredItems);
   };
 
   const handleChangeType = (event) => {
     setSelectedType(event.target.value);
-    let newItems = originalItems.filter(
-      (item) => item.type == event.target.value
-    );
-    setItems(newItems);
+    if (selectedDate !== "Filter by Date") {
+      filterItems(selectedDate, event.target.value);
+    } else {
+      filterItems(false, event.target.value);
+    }
     setCurrentPage(1);
   };
 
@@ -63,7 +101,6 @@ export const Body = () => {
       setCurrentPage(currentPage - 1);
     }
   };
-
   return (
     <div className="mb-16 sm:mb-0 w-full">
       <div className="w-full max-w-screen-1.5xl px-4 1.5xl:px-0 mx-auto flex flex-col gap-6">
@@ -81,7 +118,7 @@ export const Body = () => {
               value={selectedDate}
               className=" text-zinc-600 sm:text-white text-sm bg-gray h-10 border border-dark-gray sm:bg-blue-1000 py-2 px-2 rounded-md flex justify-between focus:outline-none"
             >
-              <option>Filter by Date</option>
+              <option value="">Filter by Date</option>
               <option value="2023-2024">2023-2024</option>
               <option value="2024-2025">2024-2025</option>
             </select>
@@ -91,10 +128,25 @@ export const Body = () => {
               value={selectedType}
               className=" text-zinc-600 sm:text-white text-sm bg-gray h-10 border border-dark-gray sm:bg-blue-1000 py-2 px-2 rounded-md flex justify-between focus:outline-none"
             >
-              <option>Filter by Type</option>
-              <option value="Signature">Signature</option>
-              <option value="Standalone">Standalone</option>
-              <option>Option 3</option>
+              <option value="">Filter by Type</option>
+              <option value="yoga">yoga</option>
+              <option value="weight loss">weight loss</option>
+              <option value="camp">camp</option>
+              <option value="diet">diet</option>
+              <option value="weekend">weekend</option>
+              <option value="workshop">workshop</option>
+              <option value="meditation">meditation</option>
+              <option value="fitness">fitness</option>
+              <option value="detox">detox</option>
+              <option value="cleanse">cleanse</option>
+              <option value="pre-natal">pre-natal</option>
+              <option value="post-natal">post-natal</option>
+              <option value="fitness">fitness</option>
+              <option value="mental wellness">mental wellness</option>
+              <option value="flexibility">flexibility</option>
+              <option value="relaxation">relaxation</option>
+              <option value="spiritual growth">spiritual growth</option>
+              <option value="pain management">pain management</option>
             </select>
           </div>
           <div className="w-full sm:w-[25rem]">
@@ -105,32 +157,32 @@ export const Body = () => {
           </div>
         </div>
 
-        <div className=" flex items-center w-full justify-center mx-auto">
-          <div className=" grid grid-rows-3 grid-cols-1 sm:grid-rows-1 sm:grid-cols-3 gap-6">
-            {currentItems.map((item) => (
-              <SmallCard
-                key={item.id}
-                title={item.title}
-                description={item.description}
-                date={item.date}
-                location={item.location}
-                image={item.image}
-                price={item.price}
-                duration={item.duration}
-              />
-            ))}
-          </div>
+        <div className="flex flex-col sm:flex-row flex-wrap w-full gap-6 items-center sm:items-start justify-center">
+          {currentItems.map((item) => (
+            <SmallCard
+              key={item.id}
+              title={item.title}
+              description={item.description}
+              date={item.date}
+              location={item.location}
+              image={item.image}
+              price={item.price}
+              duration={item.duration}
+            />
+          ))}
         </div>
         <div className="flex gap-4 sm:gap-6 justify-center items-center">
           <button
             onClick={handlePreviousPage}
-            className="bg-blue-1000 text-white py-2 sm:py-3 px-6 rounded-full sm:rounded-md"
+            disabled={currentPage === 1}
+            className="disabled:bg-blue-900 disabled:text-zinc-200 disabled:cursor-not-allowed bg-blue-1000  text-white py-2 sm:py-3 px-6 rounded-full sm:rounded-md"
           >
             Previous
           </button>
           <button
+            disabled={currentPage === Math.ceil(items.length / itemsPerPage)}
             onClick={handleNextPage}
-            className="bg-blue-1000 text-white py-2 sm:py-3 px-6 rounded-full sm:rounded-md"
+            className=" disabled:bg-blue-700 bg-blue-1000 text-white py-2 sm:py-3 px-6 rounded-full sm:rounded-md"
           >
             Next
           </button>

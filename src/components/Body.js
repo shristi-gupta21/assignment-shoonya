@@ -116,7 +116,6 @@ export const Body = () => {
       filterItems(false, false, event.target.value);
     }
   };
-  console.log(searchText);
   return (
     <div className="mb-16 sm:mb-0 w-full">
       <div className="w-full max-w-screen-1.5xl px-4 1.5xl:px-0 mx-auto flex flex-col gap-6">

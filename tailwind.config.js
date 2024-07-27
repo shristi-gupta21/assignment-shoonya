@@ -8,6 +8,7 @@ module.exports = {
         beige: "rgb(224, 217, 207)",
         gray: " rgb(239, 239, 239)",
         "dark-gray": "rgb(209, 213, 219)",
+        "gray-900": "rgb(55, 65, 81)",
       },
       screens: {
         "1.5xl": "1440px",

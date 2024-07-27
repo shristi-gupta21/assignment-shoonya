@@ -6,8 +6,9 @@ import { Footer } from "./Footer";
 export const Body = () => {
   const [items, setItems] = useState([]);
   const [originalItems, setOriginalItems] = useState([]);
-  const [selectedDate, setSelectedDate] = useState("date");
-  const [selectedType, setSelectedType] = useState("type");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedType, setSelectedType] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
   const [searchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
@@ -28,6 +29,10 @@ export const Body = () => {
         const data = await response.json();
         setItems(data);
         setOriginalItems(data);
+        setSearchText("");
+        setSelectedDate("");
+        setSelectedLocation("");
+        setSelectedType("");
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -42,11 +47,7 @@ export const Body = () => {
 
   const handleChangeDate = (event) => {
     setSelectedDate(event.target.value);
-    if (selectedType !== "type") {
-      filterItems(event.target.value, selectedType, searchText);
-    } else {
-      filterItems(event.target.value, false, searchText);
-    }
+    filterItems(event.target.value, selectedType, searchText, selectedLocation);
     setCurrentPage(1);
   };
 
@@ -65,7 +66,7 @@ export const Body = () => {
       return itemYear >= startYear && itemYear <= endYear;
     });
   };
-  const filterItems = (dateRange, type, text) => {
+  const filterItems = (dateRange, type, text, location) => {
     let filteredItems = originalItems;
 
     if (dateRange) {
@@ -80,19 +81,24 @@ export const Body = () => {
         item.title.toLowerCase().includes(text.toLowerCase())
       );
     }
+    if (location) {
+      filteredItems = filteredItems.filter(
+        (item) => item.location === location
+      );
+    }
     setItems(filteredItems);
   };
 
   const handleChangeType = (event) => {
     setSelectedType(event.target.value);
-    if (selectedDate !== "date") {
-      filterItems(selectedDate, event.target.value, searchText);
-    } else {
-      filterItems(false, event.target.value, searchText);
-    }
+    filterItems(selectedDate, event.target.value, searchText, selectedLocation);
     setCurrentPage(1);
   };
-
+  const handleChangeLocation = (event) => {
+    setSelectedLocation(event.target.value);
+    filterItems(selectedDate, selectedType, searchText, event.target.value);
+    setCurrentPage(1);
+  };
   const handleNextPage = () => {
     if (currentPage < Math.ceil(items.length / itemsPerPage)) {
       setCurrentPage(currentPage + 1);
@@ -106,19 +112,11 @@ export const Body = () => {
   };
   const handleSearch = (event) => {
     setSearchText(event.target.value);
-    if (selectedDate !== "date") {
-      filterItems(selectedDate, false, event.target.value);
-    } else if (selectedType !== "type") {
-      filterItems(false, selectedType, event.target.value);
-    } else if (selectedDate !== "date" && selectedType !== "type") {
-      filterItems(selectedDate, selectedType, event.target.value);
-    } else {
-      filterItems(false, false, event.target.value);
-    }
+    filterItems(selectedDate, selectedType, event.target.value);
   };
   return (
-    <div className="mb-16 sm:mb-0 w-full">
-      <div className="w-full max-w-screen-1.5xl px-4 1.5xl:px-0 mx-auto flex flex-col gap-6">
+    <div className="mb-16 sm:mb-0 w-full ">
+      <div className="w-full  max-w-screen-1.5xl px-4 1.5xl:px-0 mx-auto flex flex-col gap-6">
         <LargeCard
           title={"Discover Your Inner Peace"}
           description={
@@ -133,7 +131,7 @@ export const Body = () => {
               value={selectedDate}
               className=" text-zinc-600 sm:text-white text-sm bg-gray h-10 border border-dark-gray sm:bg-blue-1000 py-2 px-2 rounded-md flex justify-between focus:outline-none"
             >
-              <option value="date">Filter by Date</option>
+              <option value="">Filter by Date</option>
               <option value="2023-2024">2023-2024</option>
               <option value="2024-2025">2024-2025</option>
             </select>
@@ -143,25 +141,80 @@ export const Body = () => {
               value={selectedType}
               className=" text-zinc-600 sm:text-white text-sm bg-gray h-10 border border-dark-gray sm:bg-blue-1000 py-2 px-2 rounded-md flex justify-between focus:outline-none"
             >
-              <option value="type">Filter by Type</option>
-              <option value="yoga">yoga</option>
-              <option value="weight loss">weight loss</option>
-              <option value="camp">camp</option>
-              <option value="diet">diet</option>
-              <option value="weekend">weekend</option>
-              <option value="workshop">workshop</option>
-              <option value="meditation">meditation</option>
-              <option value="fitness">fitness</option>
-              <option value="detox">detox</option>
-              <option value="cleanse">cleanse</option>
-              <option value="pre-natal">pre-natal</option>
-              <option value="post-natal">post-natal</option>
-              <option value="fitness">fitness</option>
-              <option value="mental wellness">mental wellness</option>
-              <option value="flexibility">flexibility</option>
-              <option value="relaxation">relaxation</option>
-              <option value="spiritual growth">spiritual growth</option>
-              <option value="pain management">pain management</option>
+              <option value="">Filter by Type</option>
+              <option className=" capitalize" value="yoga">
+                yoga
+              </option>
+              <option className=" capitalize" value="weight loss">
+                weight loss
+              </option>
+              <option className=" capitalize" value="camp">
+                camp
+              </option>
+              <option className=" capitalize" value="diet">
+                diet
+              </option>
+              <option className=" capitalize" value="weekend">
+                weekend
+              </option>
+              <option className=" capitalize" value="workshop">
+                workshop
+              </option>
+              <option className=" capitalize" value="meditation">
+                meditation
+              </option>
+              <option className=" capitalize" value="fitness">
+                fitness
+              </option>
+              <option className=" capitalize" value="detox">
+                detox
+              </option>
+              <option className=" capitalize" value="cleanse">
+                cleanse
+              </option>
+              <option className=" capitalize" value="pre-natal">
+                pre-natal
+              </option>
+              <option className=" capitalize" value="post-natal">
+                post-natal
+              </option>
+              <option className=" capitalize" value="fitness">
+                fitness
+              </option>
+              <option className=" capitalize" value="mental wellness">
+                mental wellness
+              </option>
+              <option className=" capitalize" value="flexibility">
+                flexibility
+              </option>
+              <option className=" capitalize" value="relaxation">
+                relaxation
+              </option>
+              <option className=" capitalize" value="spiritual growth">
+                spiritual growth
+              </option>
+              <option className=" capitalize" value="pain management">
+                pain management
+              </option>
+            </select>
+
+            <select
+              onChange={handleChangeLocation}
+              value={selectedLocation}
+              className=" text-zinc-600 sm:text-white text-sm bg-gray h-10 border border-dark-gray sm:bg-blue-1000 py-2 px-2 rounded-md flex justify-between focus:outline-none"
+            >
+              <option value="">Filter by Location</option>
+              <option value="Goa">Goa</option>
+              <option value="Rishikesh">Rishikesh</option>
+              <option value="Kerala">Kerala</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Chennai">Chennai</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Varanasi">Varanasi</option>
+              <option value="Kolkata">Kolkata</option>
+              <option value="Agra">Agra</option>
+              <option value="Pune">Pune</option>
+              <option value="Hyderabad">Hyderabad</option>
             </select>
           </div>
           <div className="w-full sm:w-[25rem]">
@@ -187,19 +240,27 @@ export const Body = () => {
               duration={item.duration}
             />
           ))}
+          {currentItems.length === 0 && (
+            <div className="h-80 text-lg font-semibold flex justify-center items-center">
+              <p>No records found</p>
+            </div>
+          )}
         </div>
         <div className="flex gap-4 sm:gap-6 justify-center items-center">
           <button
             onClick={handlePreviousPage}
-            disabled={currentPage === 1}
-            className="disabled:bg-blue-900 disabled:text-zinc-200 disabled:cursor-not-allowed bg-blue-1000  text-white py-2 sm:py-3 px-6 rounded-full sm:rounded-md"
+            disabled={currentPage <= 1}
+            className="disabled:bg-slate-300 disabled:opacity-50 disabled:text-black disabled:cursor-not-allowed bg-blue-1000  text-white py-2  px-6 rounded-full sm:rounded-md"
           >
             Previous
           </button>
           <button
-            disabled={currentPage === Math.ceil(items.length / itemsPerPage)}
+            disabled={
+              currentPage === Math.ceil(items.length / itemsPerPage) ||
+              Math.ceil(items.length / itemsPerPage) === 0
+            }
             onClick={handleNextPage}
-            className=" disabled:bg-blue-700 bg-blue-1000 text-white py-2 sm:py-3 px-6 rounded-full sm:rounded-md"
+            className=" disabled:bg-slate-300 disabled:opacity-50 disabled:text-black disabled:cursor-not-allowed bg-blue-1000 text-white py-2  px-6 rounded-full sm:rounded-md"
           >
             Next
           </button>

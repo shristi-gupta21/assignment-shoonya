@@ -1,17 +1,51 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { LargeCard } from "../layouts/LargeCard";
 import { SmallCard } from "../layouts/SmallCard";
 import { Footer } from "./Footer";
 
 export const Body = () => {
+  const [items, setItems] = useState([]);
   const [selectedDate, setSelectedDate] = useState("Filter by Date");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 3;
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          "https://669f704cb132e2c136fdd9a0.mockapi.io/api/v1/retreats"
+        );
+        const data = await response.json();
+        setItems(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
   const handleChange = (event) => {
     setSelectedDate(event.target.value);
   };
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(items.length / itemsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   console.log(selectedDate);
   return (
-    <div className="mb-16 sm:mb-0">
+    <div className="mb-16 sm:mb-0 w-full">
       <div className="w-full max-w-screen-1.5xl px-4 1.5xl:px-0 mx-auto flex flex-col gap-6">
         <LargeCard
           title={"Discover Your Inner Peace"}
@@ -47,16 +81,33 @@ export const Body = () => {
           </div>
         </div>
 
-        <div className="flex flex-col items-center sm:flex-row gap-6 w-full">
-          <SmallCard />
-          <SmallCard />
-          <SmallCard />
+        <div className=" flex items-center w-full justify-center mx-auto">
+          <div className=" grid grid-rows-3 grid-cols-1 sm:grid-rows-1 sm:grid-cols-3 gap-6">
+            {currentItems.map((item) => (
+              <SmallCard
+                key={item.id}
+                title={item.title}
+                description={item.description}
+                date={item.date}
+                location={item.location}
+                image={item.image}
+                price={item.price}
+                duration={item.duration}
+              />
+            ))}
+          </div>
         </div>
         <div className="flex gap-4 sm:gap-6 justify-center items-center">
-          <button className="bg-blue-1000 text-white py-2 sm:py-3 px-6 rounded-full sm:rounded-md">
+          <button
+            onClick={handlePreviousPage}
+            className="bg-blue-1000 text-white py-2 sm:py-3 px-6 rounded-full sm:rounded-md"
+          >
             Previous
           </button>
-          <button className="bg-blue-1000 text-white py-2 sm:py-3 px-6 rounded-full sm:rounded-md">
+          <button
+            onClick={handleNextPage}
+            className="bg-blue-1000 text-white py-2 sm:py-3 px-6 rounded-full sm:rounded-md"
+          >
             Next
           </button>
         </div>

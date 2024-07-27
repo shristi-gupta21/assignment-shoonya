@@ -5,18 +5,28 @@ import { Footer } from "./Footer";
 
 export const Body = () => {
   const [items, setItems] = useState([]);
+  const [originalItems, setOriginalItems] = useState([]);
   const [selectedDate, setSelectedDate] = useState("Filter by Date");
+  const [selectedType, setSelectedType] = useState("Filter by Type");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (retryCount = 0) => {
       try {
         const response = await fetch(
           "https://669f704cb132e2c136fdd9a0.mockapi.io/api/v1/retreats"
         );
+        if (response.status === 429 && retryCount < 5) {
+          setTimeout(() => fetchData(retryCount + 1), 1000 * (retryCount + 1));
+          return;
+        }
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
         const data = await response.json();
         setItems(data);
+        setOriginalItems(data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -28,9 +38,20 @@ export const Body = () => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = items.slice(indexOfFirstItem, indexOfLastItem);
-  const handleChange = (event) => {
+
+  const handleChangeDate = (event) => {
     setSelectedDate(event.target.value);
   };
+
+  const handleChangeType = (event) => {
+    setSelectedType(event.target.value);
+    let newItems = originalItems.filter(
+      (item) => item.type == event.target.value
+    );
+    setItems(newItems);
+    setCurrentPage(1);
+  };
+
   const handleNextPage = () => {
     if (currentPage < Math.ceil(items.length / itemsPerPage)) {
       setCurrentPage(currentPage + 1);
@@ -43,7 +64,6 @@ export const Body = () => {
     }
   };
 
-  console.log(selectedDate);
   return (
     <div className="mb-16 sm:mb-0 w-full">
       <div className="w-full max-w-screen-1.5xl px-4 1.5xl:px-0 mx-auto flex flex-col gap-6">
@@ -57,7 +77,7 @@ export const Body = () => {
         <div className="flex flex-col sm:flex-row justify-between gap-4">
           <div className="sm:flex-row flex flex-col gap-4">
             <select
-              onChange={handleChange}
+              onChange={handleChangeDate}
               value={selectedDate}
               className=" text-zinc-600 sm:text-white text-sm bg-gray h-10 border border-dark-gray sm:bg-blue-1000 py-2 px-2 rounded-md flex justify-between focus:outline-none"
             >
@@ -66,10 +86,14 @@ export const Body = () => {
               <option value="2024-2025">2024-2025</option>
             </select>
 
-            <select className=" text-zinc-600 sm:text-white text-sm bg-gray h-10 border border-dark-gray sm:bg-blue-1000 py-2 px-2 rounded-md flex justify-between focus:outline-none">
+            <select
+              onChange={handleChangeType}
+              value={selectedType}
+              className=" text-zinc-600 sm:text-white text-sm bg-gray h-10 border border-dark-gray sm:bg-blue-1000 py-2 px-2 rounded-md flex justify-between focus:outline-none"
+            >
               <option>Filter by Type</option>
-              <option>Option 1</option>
-              <option>Option 2</option>
+              <option value="Signature">Signature</option>
+              <option value="Standalone">Standalone</option>
               <option>Option 3</option>
             </select>
           </div>

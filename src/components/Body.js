@@ -6,8 +6,9 @@ import { Footer } from "./Footer";
 export const Body = () => {
   const [items, setItems] = useState([]);
   const [originalItems, setOriginalItems] = useState([]);
-  const [selectedDate, setSelectedDate] = useState("Filter by Date");
-  const [selectedType, setSelectedType] = useState("Filter by Type");
+  const [selectedDate, setSelectedDate] = useState("date");
+  const [selectedType, setSelectedType] = useState("type");
+  const [searchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
 
@@ -41,12 +42,11 @@ export const Body = () => {
 
   const handleChangeDate = (event) => {
     setSelectedDate(event.target.value);
-    if (selectedType !== "Filter by Type") {
-      filterItems(event.target.value, selectedType);
+    if (selectedType !== "type") {
+      filterItems(event.target.value, selectedType, searchText);
     } else {
-      filterItems(event.target.value, false);
+      filterItems(event.target.value, false, searchText);
     }
-    // console.log(selectedType);
     setCurrentPage(1);
   };
 
@@ -65,7 +65,7 @@ export const Body = () => {
       return itemYear >= startYear && itemYear <= endYear;
     });
   };
-  const filterItems = (dateRange, type) => {
+  const filterItems = (dateRange, type, text) => {
     let filteredItems = originalItems;
 
     if (dateRange) {
@@ -75,17 +75,20 @@ export const Body = () => {
     if (type) {
       filteredItems = filteredItems.filter((item) => item.tag.includes(type));
     }
-    console.log("Filtered items:", filteredItems); // Debug filtered items
-
+    if (text) {
+      filteredItems = filteredItems.filter((item) =>
+        item.title.toLowerCase().includes(text.toLowerCase())
+      );
+    }
     setItems(filteredItems);
   };
 
   const handleChangeType = (event) => {
     setSelectedType(event.target.value);
-    if (selectedDate !== "Filter by Date") {
-      filterItems(selectedDate, event.target.value);
+    if (selectedDate !== "date") {
+      filterItems(selectedDate, event.target.value, searchText);
     } else {
-      filterItems(false, event.target.value);
+      filterItems(false, event.target.value, searchText);
     }
     setCurrentPage(1);
   };
@@ -101,6 +104,19 @@ export const Body = () => {
       setCurrentPage(currentPage - 1);
     }
   };
+  const handleSearch = (event) => {
+    setSearchText(event.target.value);
+    if (selectedDate !== "date") {
+      filterItems(selectedDate, false, event.target.value);
+    } else if (selectedType !== "type") {
+      filterItems(false, selectedType, event.target.value);
+    } else if (selectedDate !== "date" && selectedType !== "type") {
+      filterItems(selectedDate, selectedType, event.target.value);
+    } else {
+      filterItems(false, false, event.target.value);
+    }
+  };
+  console.log(searchText);
   return (
     <div className="mb-16 sm:mb-0 w-full">
       <div className="w-full max-w-screen-1.5xl px-4 1.5xl:px-0 mx-auto flex flex-col gap-6">
@@ -118,7 +134,7 @@ export const Body = () => {
               value={selectedDate}
               className=" text-zinc-600 sm:text-white text-sm bg-gray h-10 border border-dark-gray sm:bg-blue-1000 py-2 px-2 rounded-md flex justify-between focus:outline-none"
             >
-              <option value="">Filter by Date</option>
+              <option value="date">Filter by Date</option>
               <option value="2023-2024">2023-2024</option>
               <option value="2024-2025">2024-2025</option>
             </select>
@@ -128,7 +144,7 @@ export const Body = () => {
               value={selectedType}
               className=" text-zinc-600 sm:text-white text-sm bg-gray h-10 border border-dark-gray sm:bg-blue-1000 py-2 px-2 rounded-md flex justify-between focus:outline-none"
             >
-              <option value="">Filter by Type</option>
+              <option value="type">Filter by Type</option>
               <option value="yoga">yoga</option>
               <option value="weight loss">weight loss</option>
               <option value="camp">camp</option>
@@ -151,6 +167,8 @@ export const Body = () => {
           </div>
           <div className="w-full sm:w-[25rem]">
             <input
+              onChange={handleSearch}
+              value={searchText}
               className="sm:bg-blue-1000 border border-dark-gray sm:text-white w-full focus:outline-none sm:placeholder:text-white p-2 rounded-md  placeholder:text-sm"
               placeholder="Search retreats by title"
             />

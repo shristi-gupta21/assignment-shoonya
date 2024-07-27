@@ -2,8 +2,10 @@ import React from "react";
 
 export const SmallCard = () => {
   return (
-    <div className="bg-beige rounded-md w-full p-7 flex flex-col gap-4 text-sm">
-      <div className="border border-black rounded-2xl w-40 h-32 ">image</div>
+    <div className="bg-beige rounded-md w-[21.43rem] sm:w-full p-7 flex flex-col gap-4 text-sm">
+      <div className="border border-black rounded-2xl w-full sm:w-40 h-32 ">
+        image
+      </div>
       <p className="text-xl font-semibold">Forest Yoga Retreat </p>
       <span>
         Join us for a rejuvenating yoga retreat in the heart of the forest.
